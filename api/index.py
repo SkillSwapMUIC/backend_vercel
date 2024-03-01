@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return 'Hello, TEST you HURENSÖHNE! This is a change to test pre-commit'
+    return 'Hello, TEST you HURENSÖHNE! This is a change to test pre-commit again'
 
 @app.route('/about')
 def about():
