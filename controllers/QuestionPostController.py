@@ -16,7 +16,9 @@ class QuestionPostController:
 
     @staticmethod
     def create_question_post(creator_id, status, category_id):
-        new_question_post = QuestionPost(creator_id=creator_id, status=status, category_id=category_id)
+        new_question_post = QuestionPost(
+            creator_id=creator_id, status=status, category_id=category_id
+        )
         db.session.add(new_question_post)
         db.session.commit()
         return new_question_post

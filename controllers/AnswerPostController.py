@@ -16,7 +16,9 @@ class AnswerPostController:
 
     @staticmethod
     def create_answer_post(creator_id, answering_to_post_id, body):
-        new_answer_post = AnswerPost(creator_id=creator_id, answering_to_post_id=answering_to_post_id, body=body)
+        new_answer_post = AnswerPost(
+            creator_id=creator_id, answering_to_post_id=answering_to_post_id, body=body
+        )
         db.session.add(new_answer_post)
         db.session.commit()
         return new_answer_post
