@@ -49,6 +49,7 @@ def create_course():
     data = request.json
     return CourseController.create_course(data)
 
+
 @app.route("/course/<int:course_id>", methods=["GET"])
 def get_course(course_id):
     return CourseController.get_course(course_id)

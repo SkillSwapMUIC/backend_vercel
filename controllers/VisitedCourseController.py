@@ -1,7 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from models import VisitedCourse, Course, User
+
+from models import Course, User, VisitedCourse
 
 db = SQLAlchemy()
+
 
 class VisitedCourseController:
     @staticmethod
@@ -25,7 +27,9 @@ class VisitedCourseController:
 
     @staticmethod
     def remove_visited_course(user_id, course_id):
-        visited_course = VisitedCourse.query.filter_by(user_id=user_id, course_id=course_id).first()
+        visited_course = VisitedCourse.query.filter_by(
+            user_id=user_id, course_id=course_id
+        ).first()
         if visited_course:
             db.session.delete(visited_course)
             db.session.commit()
