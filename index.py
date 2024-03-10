@@ -1,11 +1,13 @@
 from flask import Flask, request
 
-from controllers.AnswerPostController import AnswerPostController
-from controllers.CategoryController import CategoryController
-from controllers.CourseController import CourseController
-from controllers.QuestionPostController import QuestionPostController
-from controllers.UserController import UserController
-from models import db
+from controllers import (
+    AnswerPostController,
+    CategoryController,
+    CourseController,
+    QuestionPostController,
+    UserController,
+)
+from models import AnswerPost, Category, Course, QuestionPost, User, db
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///SkillSwapMUIC.db"
