@@ -1,7 +1,0 @@
-from .answer_post_controller import answer_post_controller
-from .category_controller import category_controller
-from .course_controller import course_controller
-from .question_post_controller import question_post_controller
-from .section_controller import section_controller
-from .user_controller import user_controller
-from .visited_course_controller import visited_course_controller
