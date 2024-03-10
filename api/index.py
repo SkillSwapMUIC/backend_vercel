@@ -8,17 +8,7 @@ from controllers import (
     resource_controller,
     user_controller,
 )
-from models import (
-    AnswerPost,
-    Category,
-    Course,
-    QuestionPost,
-    Resource,
-    Section,
-    User,
-    VisitedCourse,
-    db,
-)
+from models import db
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///SkillSwapMUIC.db"
