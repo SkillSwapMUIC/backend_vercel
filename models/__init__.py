@@ -1,11 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+from .AnswerPost import AnswerPost
+from .Category import Category
+from .Course import Course
+from .QuestionPost import QuestionPost
+from .Section import Section
+from .User import User
+from .VisitedCourse import VisitedCourse
 
-from .answer_post import AnswerPost
-from .category import Category
-from .course import Course
-from .question_post import QuestionPost
-from .section import Section
-from .user import User
-from .visited_course import VisitedCourse
+# Initialize the SQLAlchemy object
+db = SQLAlchemy()

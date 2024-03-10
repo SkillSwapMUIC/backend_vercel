@@ -12,3 +12,5 @@ env.bak/
 venv.bak/
 .idea/
 .DS_Store
+.pytest_cache
+.DS_Store

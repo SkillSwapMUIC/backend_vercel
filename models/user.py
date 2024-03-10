@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
@@ -12,6 +13,10 @@ class User(Base):
     role = Column(String)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    visited_courses = relationship("VisitedCourse", backref="user")
+    created_courses = relationship("Course", backref="creator")
+    questions = relationship("QuestionPost", backref="creator")
+    answers = relationship("AnswerPost", backref="creator")
 
     def to_dict(self):
         return {

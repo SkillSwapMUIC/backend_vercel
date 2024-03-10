@@ -1,6 +1,7 @@
+from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-from models.course import Course
+from models.Course import Course
 
 db = SQLAlchemy()
 
@@ -15,7 +16,13 @@ class CourseController:
         return Course.query.filter_by(creator_id=creator_id).all()
 
     @staticmethod
-    def create_course(creator_id, title, description, category_id, level):
+    def create_course(data):
+        creator_id = data.get("creator_id")
+        title = data.get("title")
+        description = data.get("description")
+        category_id = data.get("category_id")
+        level = data.get("level")
+
         new_course = Course(
             creator_id=creator_id,
             title=title,
@@ -25,4 +32,4 @@ class CourseController:
         )
         db.session.add(new_course)
         db.session.commit()
-        return new_course
+        return jsonify(new_course.to_dict()), 201

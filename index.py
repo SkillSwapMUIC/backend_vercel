@@ -6,8 +6,9 @@ from controllers import (
     CourseController,
     QuestionPostController,
     UserController,
+    VisitedCourseController,
 )
-from models import AnswerPost, Category, Course, QuestionPost, User, db
+from models import db
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///SkillSwapMUIC.db"
@@ -23,14 +24,13 @@ def home():
 # User routes
 @app.route("/user/register", methods=["POST"])
 def register_user():
-    data = request.json
+    data = request.get_json()
     return UserController.register_user(data)
 
 
 @app.route("/user/login", methods=["POST"])
 def login_user():
-    data = request.json
-    return UserController.login_user(data)
+    return UserController.login_user()
 
 
 @app.route("/user/logout", methods=["POST"])
@@ -38,9 +38,8 @@ def logout_user():
     return UserController.logout_user()
 
 
-@app.route("/user/profile", methods=["GET"])
-def get_profile():
-    user_id = request.args.get("user_id")
+@app.route("/user/profile/<int:user_id>", methods=["GET"])
+def get_profile(user_id):
     return UserController.get_profile(user_id)
 
 
@@ -49,7 +48,6 @@ def get_profile():
 def create_course():
     data = request.json
     return CourseController.create_course(data)
-
 
 @app.route("/course/<int:course_id>", methods=["GET"])
 def get_course(course_id):

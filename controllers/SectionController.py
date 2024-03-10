@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from models.section import Section
+from models.Section import Section
 
 db = SQLAlchemy()
 

@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from models.question_post import QuestionPost
+from models.QuestionPost import QuestionPost
 
 db = SQLAlchemy()
 
