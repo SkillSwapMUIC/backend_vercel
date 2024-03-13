@@ -1,7 +1,7 @@
 from flask import jsonify
 from flask_sqlalchemy import SQLAlchemy
 
-from models.Course import Course
+from models.course import Course
 
 db = SQLAlchemy()
 
