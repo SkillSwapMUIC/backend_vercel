@@ -1,18 +1,19 @@
 from flask import jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import User, db
+from models import db
+from models.User import User
 
 
 class UserController:
     @staticmethod
-    def register_user():
+    def register_user(request):
         email = request.json.get("email")
         password = request.json.get("password")
         if not email or not password:
             return jsonify({"error": "Email and password are required"}), 400
-        if User.query.filter_by(email=email).first():
-            return jsonify({"error": "User already exists"}), 400
+        # if User.query.filter_by(email=email).first():
+        #     return jsonify({"error": "User already exists"}), 400
         hashed_password = generate_password_hash(password)
         user = User(email=email, password_hash=hashed_password)
         db.session.add(user)

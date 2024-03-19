@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
-from models import Course, User, VisitedCourse
+from models.Course import Course
+from models.User import User
+from models.VisitedCourse import VisitedCourse
 
 db = SQLAlchemy()
 

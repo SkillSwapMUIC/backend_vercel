@@ -1,13 +1,11 @@
 from flask import Flask, request
 
-from controllers import (
-    AnswerPostController,
-    CategoryController,
-    CourseController,
-    QuestionPostController,
-    UserController,
-    VisitedCourseController,
-)
+from controllers.AnswerPostController import AnswerPostController
+from controllers.CategoryController import CategoryController
+from controllers.CourseController import CourseController
+from controllers.QuestionPostController import QuestionPostController
+from controllers.UserController import UserController
+from controllers.VisitedCourseController import VisitedCourseController
 from models import db
 
 app = Flask(__name__)
@@ -25,7 +23,7 @@ def home():
 @app.route("/user/register", methods=["POST"])
 def register_user():
     data = request.get_json()
-    return UserController.register_user(data)
+    return UserController.register_user(request)
 
 
 @app.route("/user/login", methods=["POST"])

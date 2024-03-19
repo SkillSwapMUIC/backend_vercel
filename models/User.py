@@ -13,7 +13,7 @@ class User(Base):
     role = Column(String)
     email = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
-    visited_courses = relationship("VisitedCourse", backref="user")
+    visited_courses = relationship("VisitedCourse", back_populates="user")
     created_courses = relationship("Course", backref="creator")
     questions = relationship("QuestionPost", backref="creator")
     answers = relationship("AnswerPost", backref="creator")
