@@ -1,31 +1,30 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 db = SQLAlchemy(app)
 
-
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(80), unique=False, nullable=False)
-    question_text = db.Column(db.String(120), unique=False, nullable=False)
-
-    def __repr__(self):
-        return "<User %r>" % self.username
+# this order is important, otherwise there will be a circular import
+# noqa is used to ignore the flake8 warning
+from models.question import Question  # noqa
 
 
 # Posts
-@app.route("/placeQuestion", methods=["POST"])
+@app.route("/submitQuestion", methods=["POST"])
 def place_question():
-    # Create a new user object
-    question = Question(title="How do cars work?", question_text="How tf do cars work?")
+    # get title, question_text, user_id and tags from the request
+    title = request.json["title"]
+    question_text = request.json["question_text"]
+    user_id = request.json["user_id"]
+    tags = str(request.json["tags"])
 
-    # Add the new user to the session
+    question = Question(
+        title=title, question_text=question_text, user_id=user_id, tags=tags
+    )
     db.session.add(question)
-
-    # Commit the session to persist the changes
     db.session.commit()
+
     return "Placed a question"
 
 
