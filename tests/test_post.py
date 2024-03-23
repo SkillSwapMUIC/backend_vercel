@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from index import app, db
@@ -39,3 +41,27 @@ def test_index_route(client):
     response = client.get("/")
     assert response.status_code == 200
     assert b"Get all" in response.data
+
+
+def test_get_random_six_titles():
+    # Create a test client using pytest-flask
+    client = app.test_client()
+
+    # Perform the first GET request
+    response1 = client.get("/homepage/getrandomsixtitles")
+    assert response1.status_code == 200
+
+    # Parse JSON response
+    data1 = json.loads(response1.data)
+    assert len(data1) == 6
+
+    # Perform the second GET request
+    response2 = client.get("/homepage/getrandomsixtitles")
+    assert response2.status_code == 200
+
+    # Parse JSON response
+    data2 = json.loads(response2.data)
+    assert len(data2) == 6
+
+    # Check if the two sets of data are different
+    assert data1 != data2
