@@ -8,7 +8,6 @@ from models.question import Question
 from project_objects import app, db
 
 
-# Posts
 @app.route("/submitQuestion", methods=["POST"])
 def submit_question():
     # get title, question_text, user_id and tags from the request
@@ -41,6 +40,20 @@ def get_random_six_titles():
 
     json_data = json.dumps(json_list)
     return json_data
+
+
+@app.route("/thread/byid/<int:question_id>", methods=["GET"])
+def get_question(question_id):
+    question = Question.query.filter_by(id=question_id).first()
+    return json.dumps(
+        {
+            "title": question.title,
+            "question_text": question.question_text,
+            "user_id": question.user_id,
+            "tags": question.tags,
+            "created_at": question.created_at,
+        }
+    )
 
 
 @app.route("/", methods=["GET"])

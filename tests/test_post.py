@@ -17,7 +17,6 @@ def client():
 
 
 def test_place_question(client):
-    # Test placing a question
     data = {
         "title": "Test Title",
         "question_text": "Test Question Text",
@@ -28,7 +27,6 @@ def test_place_question(client):
     assert response.status_code == 200
     assert b"Placed a question" in response.data
 
-    # Check if question is stored in the database
     question = Question.query.filter_by(title="Test Title").first()
     assert question is not None
     assert question.title == "Test Title"
@@ -43,25 +41,47 @@ def test_index_route(client):
     assert b"Get all" in response.data
 
 
-def test_get_random_six_titles():
-    # Create a test client using pytest-flask
-    client = app.test_client()
+def test_get_random_six_titles(client):
 
-    # Perform the first GET request
     response1 = client.get("/homepage/getrandomsixtitles")
     assert response1.status_code == 200
 
-    # Parse JSON response
     data1 = json.loads(response1.data)
     assert len(data1) == 6
 
-    # Perform the second GET request
     response2 = client.get("/homepage/getrandomsixtitles")
     assert response2.status_code == 200
 
-    # Parse JSON response
     data2 = json.loads(response2.data)
     assert len(data2) == 6
 
-    # Check if the two sets of data are different
     assert data1 != data2
+
+
+def test_get_question(client):
+    # Create a test question for the purpose of this test
+    test_question = Question(
+        title="Test Title",
+        question_text="Test Question Text",
+        user_id="test_user",
+        tags=["test_tag1", "test_tag2"],
+    )
+    # Add the test question to the database
+    db.session.add(test_question)
+    db.session.commit()
+
+    # Make a GET request to the endpoint
+    response = client.get(f"/thread/byid/{test_question.id}")
+
+    # Check if the response status code is 200 OK
+    assert response.status_code == 200
+
+    # Parse the JSON response
+    response_data = json.loads(response.data)
+
+    # Check if the returned data matches the expected data
+    assert response_data["title"] == test_question.title
+    assert response_data["question_text"] == test_question.question_text
+    assert response_data["user_id"] == test_question.user_id
+    assert response_data["tags"] == test_question.tags
+    assert response_data["created_at"] == str(test_question.created_at)
