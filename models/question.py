@@ -1,4 +1,4 @@
-from index import db
+from project_objects import app, db, init_mode
 
 
 class Question(db.Model):
@@ -7,6 +7,12 @@ class Question(db.Model):
     question_text = db.Column(db.String(120), unique=False, nullable=False)
     user_id = db.Column(db.String(20), unique=False, nullable=False)
     tags = db.Column(db.String(200), unique=False, nullable=False)
+    created_at = db.Column(db.DateTime, unique=False, nullable=False)
 
     def __repr__(self):
-        return "<User %r>" % self.id
+        return "<Question %r>" % self.id
+
+
+if init_mode:
+    with app.app_context():
+        db.create_all()

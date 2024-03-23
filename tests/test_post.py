@@ -33,3 +33,9 @@ def test_place_question(client):
     assert question.question_text == "Test Question Text"
     assert question.user_id == "test_user"
     assert question.tags == "['test_tag1', 'test_tag2']"
+
+
+def test_index_route(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert b"Get all" in response.data
