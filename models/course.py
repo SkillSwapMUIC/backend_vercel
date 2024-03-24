@@ -4,7 +4,7 @@ from project_objects import app, db, init_mode
 
 
 class Course(db.Model):
-    course_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
