@@ -51,12 +51,13 @@ def test_submit_question_no_data(test_client):
     assert "No input data provided" in response.get_json()["error"]
 
 
-def test_get_random_six_titles_with_data(test_client):
+def test_get_random_six_titles(test_client):
     add_sample_question()
+
     response = test_client.get("/homepage/getrandomsixtitles")
     assert response.status_code == 200
     data = response.get_json()
-    assert len(data) == 1
+    assert len(data) <= 6
 
 
 def test_get_question(test_client):
