@@ -5,6 +5,7 @@ from sqlalchemy import exc, func
 
 from models.course import Course
 from models.question import Question
+from models.user import User
 from project_objects import app, db
 
 
@@ -202,6 +203,59 @@ def search_content():
 @app.route("/", methods=["GET"])
 def get_users():
     return "Get all users", 200
+
+
+@app.route("/api/users/me", methods=["GET"])
+def get_user_profile():
+    # Placeholder for user identification, replace with actual logic later
+    user_id = 1  # This will be replaced with the authenticated user's ID
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return (
+        jsonify(
+            {
+                "id": user.id,
+                "email": user.email,
+                "name": user.name,
+                "profile_picture": user.profile_picture,
+            }
+        ),
+        200,
+    )
+
+
+@app.route("/api/users/me", methods=["PUT"])
+def update_user_profile():
+    user_id = 1  # Placeholder, replace with authenticated user's ID
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.json
+    user.name = data.get("name", user.name)
+    user.profile_picture = data.get("profile_picture", user.profile_picture)
+
+    db.session.commit()
+    return jsonify({"message": "Profile updated successfully"}), 200
+
+
+@app.route("/api/auth/google", methods=["POST"])
+def google_login():
+    # Placeholder for Google SSO logic
+    return (
+        jsonify({"message": "Google SSO integration to be implemented"}),
+        501,
+    )  # 501 Not Implemented
+
+
+@app.route("/api/auth/logout", methods=["POST"])
+def logout():
+    # Placeholder for logout logic
+    return jsonify({"message": "Logout functionality to be implemented"}), 501
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ class Course(db.Model):
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text, nullable=True)
     category = db.Column(db.String(255), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now, nullable=False)
     level = db.Column(db.String(50), nullable=True)
     votes_up = db.Column(db.Integer, default=0)
 
