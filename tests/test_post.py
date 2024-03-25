@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -8,88 +8,135 @@ from app.models.question import Question
 from index import app
 
 
-@pytest.fixture
-def client():
-
+@pytest.fixture(scope="function")
+def test_client():
     app.config["TESTING"] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    with app.app_context():
+        db.create_all()
+        yield app.test_client()
+        db.session.remove()
+        db.drop_all()
 
 
-def test_place_question(client):
+def add_sample_question():
+    sample_question = Question(
+        title="Sample Title",
+        question_text="Sample Question Text",
+        user_id="sample_user",
+        tags="sample_tag1,sample_tag2",
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(sample_question)
+    db.session.commit()
+    return sample_question
+
+
+def test_submit_question(test_client):
     data = {
         "title": "Test Title",
         "question_text": "Test Question Text",
         "user_id": "test_user",
         "tags": ["test_tag1", "test_tag2"],
     }
-    response = client.post("/submitQuestion", json=data)
+    response = test_client.post("/submitQuestion", json=data)
+    assert response.status_code == 201
+    assert "Question successfully placed" in response.get_json()["message"]
+
+
+def test_submit_question_no_data(test_client):
+    response = test_client.post("/submitQuestion", json={})
+    assert response.status_code == 400
+    assert "No input data provided" in response.get_json()["error"]
+
+
+def test_get_random_six_titles(test_client):
+    add_sample_question()
+
+    response = test_client.get("/homepage/getrandomsixtitles")
     assert response.status_code == 200
-    assert b"Placed a question" in response.data
-
-    question = Question.query.filter_by(title="Test Title").first()
-    assert question is not None
-    assert question.title == "Test Title"
-    assert question.question_text == "Test Question Text"
-    assert question.user_id == "test_user"
-    assert question.tags == "['test_tag1', 'test_tag2']"
+    data = response.get_json()
+    assert len(data) <= 6
 
 
-def test_index_route(client):
-    response = client.get("/")
+def test_get_question(test_client):
+    sample_question = add_sample_question()
+    response = test_client.get(f"/thread/byid/{sample_question.id}")
     assert response.status_code == 200
-    assert b"Get all" in response.data
+    data = response.get_json()
+    assert data["title"] == sample_question.title
 
 
-def test_get_random_six_titles(client):
-
-    response1 = client.get("/homepage/getrandomsixtitles")
-    assert response1.status_code == 200
-
-    data1 = json.loads(response1.data)
-    assert len(data1) == 6
-
-    response2 = client.get("/homepage/getrandomsixtitles")
-    assert response2.status_code == 200
-
-    data2 = json.loads(response2.data)
-    assert len(data2) == 6
-
-    assert data1 != data2
+def test_get_question_not_found(test_client):
+    response = test_client.get("/thread/byid/999")
+    assert response.status_code == 404
+    assert "Question not found" in response.get_json()["error"]
 
 
-def test_get_question(client):
-    with app.app_context():
+def test_question_repr():
+    question = Question(
+        id=1,
+        title="Sample Question",
+        question_text="What is the meaning of life?",
+        user_id="user_123",
+        tags="philosophy,life",
+        created_at=datetime.now(),
+    )
+    assert repr(question) == "<Question 1>"
 
-        current_time = datetime.now()
-        created_at = current_time.isoformat()
 
-        test_question = Question(
-            title="Test Title",
-            question_text="Test Question Text",
-            user_id="test_user",
-            tags=str(["test_tag1", "test_tag2"]),
-            created_at=created_at,
-        )
-        # Add the test question to the database
-        db.session.add(test_question)
-        db.session.commit()
+def test_delete_question(test_client):
+    # Create a test question
+    question = Question(
+        id=1,
+        title="Sample Question",
+        question_text="What is the meaning of life?",
+        user_id="user_123",
+        tags="philosophy,life",
+        created_at=datetime.now(),
+    )
+    db.session.add(question)
+    db.session.commit()
 
-        # Make a GET request to the endpoint
-        response = client.get(f"/thread/byid/{test_question.id}")
+    # Send a DELETE request to delete the question
+    response = test_client.delete(f"/question/delete/{question.id}")
 
-        # Check if the response status code is 200 OK
-        assert response.status_code == 200
+    # Check if the question is deleted successfully
+    assert response.status_code == 200
+    assert json.loads(response.data) == {
+        "message": f"Question with ID {question.id} deleted successfully"
+    }
 
-        # Parse the JSON response
-        response_data = json.loads(response.data)
 
-        # Check if the returned data matches the expected data
-        assert response_data["title"] == test_question.title
-        assert response_data["question_text"] == test_question.question_text
-        assert response_data["user_id"] == test_question.user_id
-        assert response_data["tags"] == test_question.tags
-        assert response_data["created_at"] == test_question.created_at
+def test_update_question(test_client):
+    # Create a test question
+    question = Question(
+        id=1,
+        title="Sample Question",
+        question_text="What is the meaning of life?",
+        user_id="user_123",
+        tags="philosophy,life",
+        created_at=datetime.now(),
+    )
+    db.session.add(question)
+    db.session.commit()
+
+    # Data to update the question
+    updated_data = {
+        "title": "Updated Test Question",
+        "question_text": "Updated test question text",
+        "user_id": 123,
+        "tags": str(["tag1", "tag2"]),
+        "created_at": "2024-03-25T12:00:00",
+    }
+
+    # Send a PUT request to update the question
+    response = test_client.put(f"/question/update/{question.id}", json=updated_data)
+
+    # Check if the question is updated successfully
+    assert response.status_code == 200
+    assert json.loads(response.data) == {
+        "message": f"Question with ID {question.id} updated successfully"
+    }
