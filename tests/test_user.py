@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 from index import app
@@ -40,7 +42,7 @@ def test_logout(test_client):
     assert response.json["message"] == "Logout functionality to be implemented"
 
 
-def test_update_user_profile(test_client):
+def test_update_user_profile_with_valid_data(test_client):
     update_data = {
         "name": "Updated Test User",
         "profile_picture": "http://example.com/newpic.jpg",
@@ -49,11 +51,17 @@ def test_update_user_profile(test_client):
     assert response.status_code == 200
     assert response.json["message"] == "Profile updated successfully"
 
-    # Fetch again to verify update
     response = test_client.get("/api/users/me")
     data = response.json
     assert data["name"] == update_data["name"]
     assert data["profile_picture"] == update_data["profile_picture"]
+
+
+def test_update_user_profile_with_invalid_data(test_client):
+    update_data = {"name": ""}
+    response = test_client.put("/api/users/me", json=update_data)
+    assert response.status_code == 400
+    assert "error" in response.json
 
 
 def test_get_user_profile(test_client):
@@ -63,3 +71,28 @@ def test_get_user_profile(test_client):
     assert data["email"] == "test@example.com"
     assert data["name"] == "Test User"
     assert data["profile_picture"] == "http://example.com/pic.jpg"
+
+
+def test_user_repr(test_client):
+    with app.app_context():
+        unique_email = f"test{uuid.uuid4()}@example.com"
+        user = User(email=unique_email, name="Test User")
+        db.session.add(user)
+        db.session.commit()
+
+        saved_user = User.query.filter_by(email=unique_email).first()
+        assert saved_user is not None
+        assert repr(saved_user) == f"<User {saved_user.email}>"
+
+
+def test_user_model_properties():
+    user = User(
+        email="unique@example.com",
+        name="Unique Name",
+        profile_picture="http://example.com/unique.jpg",
+        google_id="unique_google_id",
+    )
+    assert user.email == "unique@example.com"
+    assert user.name == "Unique Name"
+    assert user.profile_picture == "http://example.com/unique.jpg"
+    assert user.google_id == "unique_google_id"

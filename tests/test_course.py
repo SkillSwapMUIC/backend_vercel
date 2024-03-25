@@ -75,3 +75,8 @@ def test_delete_course(test_client):
     response = test_client.delete(f"/api/courses/{course.id}")
     assert response.status_code == 200
     assert response.json["message"] == "Course deleted successfully"
+
+
+def test_course_repr(test_client):
+    course = Course(title="Test Course", creator_id=1)
+    assert repr(course) == "<Course Test Course>"

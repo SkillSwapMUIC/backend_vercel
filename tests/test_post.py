@@ -72,3 +72,15 @@ def test_get_question_not_found(test_client):
     response = test_client.get("/thread/byid/999")
     assert response.status_code == 404
     assert "Question not found" in response.get_json()["error"]
+
+
+def test_question_repr():
+    question = Question(
+        id=1,
+        title="Sample Question",
+        question_text="What is the meaning of life?",
+        user_id="user_123",
+        tags="philosophy,life",
+        created_at=datetime.now(),
+    )
+    assert repr(question) == "<Question 1>"
