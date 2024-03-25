@@ -8,6 +8,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     name = db.Column(db.String(255), nullable=True)
     profile_picture = db.Column(db.String(255), nullable=True)
+    role = db.Column(db.String(50), nullable=False, default="user")
     google_id = db.Column(
         db.String(255), unique=True, nullable=True
     )  # Implement Later, for now, it's nullable
