@@ -1,13 +1,16 @@
 import json
+from datetime import datetime
 
 import pytest
 
-from index import app, db
-from models.question import Question
+from app.db import db
+from app.models.question import Question
+from index import app
 
 
 @pytest.fixture
 def client():
+
     app.config["TESTING"] = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     with app.test_client() as client:
@@ -59,29 +62,34 @@ def test_get_random_six_titles(client):
 
 
 def test_get_question(client):
-    # Create a test question for the purpose of this test
-    test_question = Question(
-        title="Test Title",
-        question_text="Test Question Text",
-        user_id="test_user",
-        tags=["test_tag1", "test_tag2"],
-    )
-    # Add the test question to the database
-    db.session.add(test_question)
-    db.session.commit()
+    with app.app_context():
 
-    # Make a GET request to the endpoint
-    response = client.get(f"/thread/byid/{test_question.id}")
+        current_time = datetime.now()
+        created_at = current_time.isoformat()
 
-    # Check if the response status code is 200 OK
-    assert response.status_code == 200
+        test_question = Question(
+            title="Test Title",
+            question_text="Test Question Text",
+            user_id="test_user",
+            tags=str(["test_tag1", "test_tag2"]),
+            created_at=created_at,
+        )
+        # Add the test question to the database
+        db.session.add(test_question)
+        db.session.commit()
 
-    # Parse the JSON response
-    response_data = json.loads(response.data)
+        # Make a GET request to the endpoint
+        response = client.get(f"/thread/byid/{test_question.id}")
 
-    # Check if the returned data matches the expected data
-    assert response_data["title"] == test_question.title
-    assert response_data["question_text"] == test_question.question_text
-    assert response_data["user_id"] == test_question.user_id
-    assert response_data["tags"] == test_question.tags
-    assert response_data["created_at"] == str(test_question.created_at)
+        # Check if the response status code is 200 OK
+        assert response.status_code == 200
+
+        # Parse the JSON response
+        response_data = json.loads(response.data)
+
+        # Check if the returned data matches the expected data
+        assert response_data["title"] == test_question.title
+        assert response_data["question_text"] == test_question.question_text
+        assert response_data["user_id"] == test_question.user_id
+        assert response_data["tags"] == test_question.tags
+        assert response_data["created_at"] == test_question.created_at
