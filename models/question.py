@@ -1,4 +1,4 @@
-from project_objects import app, db, init_mode
+from project_objects import db
 
 
 class Question(db.Model):
@@ -11,8 +11,3 @@ class Question(db.Model):
 
     def __repr__(self):
         return "<Question %r>" % self.id
-
-
-if init_mode:
-    with app.app_context():
-        db.create_all()

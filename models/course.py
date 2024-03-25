@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from project_objects import app, db, init_mode
+from project_objects import db
 
 
 class Course(db.Model):
@@ -15,8 +15,3 @@ class Course(db.Model):
 
     def __repr__(self):
         return f"<Course {self.title}>"
-
-
-if init_mode:
-    with app.app_context():
-        db.create_all()

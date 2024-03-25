@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from flask import jsonify, request
@@ -231,14 +232,15 @@ def get_user_profile():
 def update_user_profile():
     user_id = 1  # Placeholder, replace with authenticated user's ID
     user = User.query.get(user_id)
-
     if not user:
         return jsonify({"error": "User not found"}), 404
 
     data = request.json
+    if not data.get("name"):
+        return jsonify({"error": "Invalid data provided"}), 400
+
     user.name = data.get("name", user.name)
     user.profile_picture = data.get("profile_picture", user.profile_picture)
-
     db.session.commit()
     return jsonify({"message": "Profile updated successfully"}), 200
 
@@ -257,6 +259,12 @@ def logout():
     # Placeholder for logout logic
     return jsonify({"message": "Logout functionality to be implemented"}), 501
 
+
+init_mode = os.environ.get("INIT_MODE", False)
+
+if init_mode:
+    with app.app_context():
+        db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True, port=5555)
