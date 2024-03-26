@@ -15,10 +15,18 @@ def create_app():
         # Create database tables if they don't exist
         db.create_all()
 
-        # Importing routes here ensures they are registered with the application
-        from app.routes.routes import home_route
+        from app.routes.course import course_route
+        from app.routes.home import home_route
+        from app.routes.qanda import qanda_route
+        from app.routes.search import search_route
+        from app.routes.user import user_route
 
-        app.register_blueprint(home_route)
+        app.register_blueprint(home_route, url_prefix="/")
+        app.register_blueprint(qanda_route, url_prefix="/qanda")
+        app.register_blueprint(user_route, url_prefix="/user")
+        app.register_blueprint(course_route, url_prefix="/course")
+        app.register_blueprint(search_route, url_prefix="/search")
+
         return app
 
 
