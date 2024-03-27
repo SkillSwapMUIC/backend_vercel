@@ -86,7 +86,7 @@ def get_question(question_id):
         return jsonify({"error": str(e)}), 500
 
 
-@qanda_route.route("/questions", methods=["GET"])
+@qanda_route.route("/allquestions", methods=["GET"])
 def get_questions():
     questions = Question.query.all()
     question_list = [
@@ -111,7 +111,7 @@ def answer_question(question_id):
     return jsonify({"message": "Answer submitted successfully"}), 200
 
 
-@qanda_route.route("/delete/<int:question_id>", methods=["DELETE"])
+@qanda_route.route("/question/delete/<int:question_id>", methods=["DELETE"])
 def delete_question(question_id):
     question = Question.query.get(question_id)
 
