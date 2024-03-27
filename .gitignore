@@ -2,14 +2,15 @@
 *.log
 *.pyc
 __pycache__
-
-# Environments 
-.env 
-.venv 
-env/ 
-venv/ 
-ENV/ 
-env.bak/ 
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
 venv.bak/
-
 .idea/
+.DS_Store
+.pytest_cache
+.DS_Store
