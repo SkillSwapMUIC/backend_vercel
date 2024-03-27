@@ -31,13 +31,13 @@ def test_client():
 
 
 def test_google_login(test_client):
-    response = test_client.post("/api/auth/google")
+    response = test_client.post("/user/auth/google")
     assert response.status_code == 501  # Not Implemented
     assert response.json["message"] == "Google SSO integration to be implemented"
 
 
 def test_logout(test_client):
-    response = test_client.post("/api/auth/logout")
+    response = test_client.post("/user/auth/logout")
     assert response.status_code == 501  # Not Implemented
     assert response.json["message"] == "Logout functionality to be implemented"
 
@@ -47,11 +47,11 @@ def test_update_user_profile_with_valid_data(test_client):
         "name": "Updated Test User",
         "profile_picture": "http://example.com/newpic.jpg",
     }
-    response = test_client.put("/api/users/me", json=update_data)
+    response = test_client.put("/user/me", json=update_data)
     assert response.status_code == 200
     assert response.json["message"] == "Profile updated successfully"
 
-    response = test_client.get("/api/users/me")
+    response = test_client.get("/user/me")
     data = response.json
     assert data["name"] == update_data["name"]
     assert data["profile_picture"] == update_data["profile_picture"]
@@ -59,13 +59,13 @@ def test_update_user_profile_with_valid_data(test_client):
 
 def test_update_user_profile_with_invalid_data(test_client):
     update_data = {"name": ""}
-    response = test_client.put("/api/users/me", json=update_data)
+    response = test_client.put("/user/me", json=update_data)
     assert response.status_code == 400
     assert "error" in response.json
 
 
 def test_get_user_profile(test_client):
-    response = test_client.get("/api/users/me")
+    response = test_client.get("/user/me")
     assert response.status_code == 200
     data = response.json
     assert data["email"] == "test@example.com"
