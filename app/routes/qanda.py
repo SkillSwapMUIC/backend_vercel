@@ -9,7 +9,7 @@ from app.models.question import Question
 qanda_route = Blueprint("qanda", __name__)
 
 
-@qanda_route.route("/question/submit", methods=["POST"])
+@qanda_route.route("/qestion/submit", methods=["POST"])
 def submit_question():
     try:
         data = request.get_json()

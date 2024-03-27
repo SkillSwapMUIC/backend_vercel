@@ -44,14 +44,14 @@ def test_create_course(test_client):
         "votes_up": 0,
         "creator_id": 1,
     }
-    response = test_client.post("/course/manage", json=data)
+    response = test_client.post("/api/courses", json=data)
     assert response.status_code == 201
     assert response.json["message"] == "Course added successfully"
 
 
 def test_get_course(test_client):
     course = add_course("Test Course", "Description", "Science", "Intermediate", 10)
-    response = test_client.get(f"/course/{course.id}")
+    response = test_client.get(f"/api/courses/{course.id}")
     assert response.status_code == 200
     assert response.json["title"] == "Test Course"
     assert response.json["description"] == "Description"
@@ -65,14 +65,14 @@ def test_update_course(test_client):
         "title": "Updated Course",
         "description": "Updated description",
     }
-    response = test_client.put(f"/course/{course.id}", json=data)
+    response = test_client.put(f"/api/courses/{course.id}", json=data)
     assert response.status_code == 200
     assert response.json["message"] == "Course updated successfully"
 
 
 def test_delete_course(test_client):
     course = add_course("To Be Deleted", "Description", "Art", "All levels", 0)
-    response = test_client.delete(f"/course/{course.id}")
+    response = test_client.delete(f"/api/courses/{course.id}")
     assert response.status_code == 200
     assert response.json["message"] == "Course deleted successfully"
 

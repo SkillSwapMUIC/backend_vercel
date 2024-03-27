@@ -41,13 +41,13 @@ def test_submit_question(test_client):
         "user_id": "test_user",
         "tags": ["test_tag1", "test_tag2"],
     }
-    response = test_client.post("/qanda/question/submit", json=data)
+    response = test_client.post("/submitQuestion", json=data)
     assert response.status_code == 201
     assert "Question successfully placed" in response.get_json()["message"]
 
 
 def test_submit_question_no_data(test_client):
-    response = test_client.post("/qanda/question/submit", json={})
+    response = test_client.post("/submitQuestion", json={})
     assert response.status_code == 400
     assert "No input data provided" in response.get_json()["error"]
 
@@ -55,7 +55,7 @@ def test_submit_question_no_data(test_client):
 def test_get_random_six_titles(test_client):
     add_sample_question()
 
-    response = test_client.get("/qanda/getrandomsixtitles")
+    response = test_client.get("/homepage/getrandomsixtitles")
     assert response.status_code == 200
     data = response.get_json()
     assert len(data) <= 6
@@ -63,14 +63,14 @@ def test_get_random_six_titles(test_client):
 
 def test_get_question(test_client):
     sample_question = add_sample_question()
-    response = test_client.get(f"/qanda/thread/byid/{sample_question.id}")
+    response = test_client.get(f"/thread/byid/{sample_question.id}")
     assert response.status_code == 200
     data = response.get_json()
     assert data["title"] == sample_question.title
 
 
 def test_get_question_not_found(test_client):
-    response = test_client.get("/qanda/thread/byid/999")
+    response = test_client.get("/thread/byid/999")
     assert response.status_code == 404
     assert "Question not found" in response.get_json()["error"]
 
@@ -101,7 +101,7 @@ def test_delete_question(test_client):
     db.session.commit()
 
     # Send a DELETE request to delete the question
-    response = test_client.delete(f"/qanda/question/delete/{question.id}")
+    response = test_client.delete(f"/question/delete/{question.id}")
 
     # Check if the question is deleted successfully
     assert response.status_code == 200
@@ -133,7 +133,7 @@ def test_update_question(test_client):
     }
 
     # Send a PUT request to update the question
-    response = test_client.put(f"/qanda/update/{question.id}", json=updated_data)
+    response = test_client.put(f"/question/update/{question.id}", json=updated_data)
 
     # Check if the question is updated successfully
     assert response.status_code == 200
