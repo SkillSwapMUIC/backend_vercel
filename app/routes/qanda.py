@@ -48,7 +48,10 @@ def submit_question():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     except Exception:
-        return jsonify({"error": "An error occurred"}), 500
+        return (
+            jsonify({"error": "An error occurred", "error_message": str(Exception)}),
+            500,
+        )
 
 
 @qanda_route.route("/getrandomsixtitles", methods=["GET"])
