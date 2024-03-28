@@ -17,9 +17,9 @@ def submit_question():
             return jsonify({"error": "No input data provided"}), 400
 
         title = data.get("title")
-        question_text = data.get("question_text")
+        question_text = data.get("content")
         user_id = data.get("user_id")
-        tags = data.get("tags")
+        tags = data.get("subject")
 
         if not all([title, question_text, user_id, tags]):
             return jsonify({"error": "Missing required question fields"}), 400
