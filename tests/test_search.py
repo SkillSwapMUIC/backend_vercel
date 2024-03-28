@@ -1,15 +1,18 @@
 import json
+
 import pytest
-from flask import Flask
+
 from app import create_app
+
 
 @pytest.fixture
 def client():
     app = create_app()
-    app.config['TESTING'] = True
+    app.config["TESTING"] = True
 
     with app.test_client() as client:
         yield client
+
 
 def test_autocomplete_with_results(client):
     data = {
@@ -22,17 +25,18 @@ def test_autocomplete_with_results(client):
     assert response.status_code == 201
     assert "Question successfully placed" in response.get_json()["message"]
 
-    response2 = client.get('/search/searchbar/autocomplete?search=Test')
+    response2 = client.get("/search/searchbar/autocomplete?search=Test")
     print(response2.data)
-    data = json.loads(response2.data.decode('utf-8'))
+    data = json.loads(response2.data.decode("utf-8"))
 
     assert response2.status_code == 200
     assert len(data) > 0
 
+
 def test_autocomplete_with_no_results(client):
-    response = client.get('/search/searchbar/autocomplete?search=nonexistent')
+    response = client.get("/search/searchbar/autocomplete?search=nonexistent")
     print(response.data)
-    data = json.loads(response.data.decode('utf-8'))
+    data = json.loads(response.data.decode("utf-8"))
 
     assert response.status_code == 404
     assert "message" in data
