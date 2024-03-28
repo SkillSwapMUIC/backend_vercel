@@ -3,7 +3,7 @@ from flask_cors import CORS
 from app import create_app
 
 app = create_app()
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://frontend-vercel-gules.vercel.app"}})
 
 
 @app.after_request
