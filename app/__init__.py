@@ -1,16 +1,24 @@
 from flask import Flask
 
-from .db import db
+from app.db import db
 
 
 def create_app():
     app = Flask(__name__)
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+
+    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "mysql+pymysql://sql6694920:hkMeVmh7Sc@sql6.freemysqlhosting.net:3306/sql6694920"
+    )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
     db.init_app(app)
+
     with app.app_context():
         # Importing models here ensures they are properly registered with SQLAlchemy
+        from app.models import course  # noqa
         from app.models import question  # noqa
+        from app.models import user  # noqa
 
         # Create database tables if they don't exist
         db.create_all()
