@@ -11,15 +11,17 @@ qanda_route = Blueprint("qanda", __name__)
 
 @qanda_route.route("/question/submit", methods=["POST"])
 def submit_question():
+    print(request.get_json())
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No input data provided"}), 400
 
         title = data.get("title")
-        question_text = data.get("question_text")
-        user_id = data.get("user_id")
-        tags = data.get("tags")
+        question_text = data.get("content")
+        # user_id = data.get("user_id")
+        user_id = "Mock user"
+        tags = [data.get("subject")]
 
         if not all([title, question_text, user_id, tags]):
             return jsonify({"error": "Missing required question fields"}), 400
@@ -39,7 +41,19 @@ def submit_question():
         db.session.add(question)
         db.session.commit()
 
-        return jsonify({"message": "Question successfully placed"}), 201
+        question_id = question.id
+
+        return (
+            jsonify(
+                {
+                    "id": question_id,
+                    "title": title,
+                    "content": question_text,
+                    "subject": tags[0],
+                }
+            ),
+            201,
+        )
 
     except exc.IntegrityError as e:
         db.session.rollback()
@@ -74,7 +88,7 @@ def get_question(question_id):
             jsonify(
                 {
                     "title": question.title,
-                    "question_text": question.question_text,
+                    "content": question.question_text,
                     "user_id": question.user_id,
                     "tags": question.tags,
                     "created_at": question.created_at,

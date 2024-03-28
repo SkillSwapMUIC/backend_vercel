@@ -37,13 +37,15 @@ def add_sample_question():
 def test_submit_question(test_client):
     data = {
         "title": "Test Title",
-        "question_text": "Test Question Text",
-        "user_id": "test_user",
+        "content": "Test Question Text",  # Changed "question_text" to "content"
+        "subject": "test_user",  # Changed "user_id" to "subject"
         "tags": ["test_tag1", "test_tag2"],
     }
     response = test_client.post("/qanda/question/submit", json=data)
     assert response.status_code == 201
-    assert "Question successfully placed" in response.get_json()["message"]
+    response_json = response.get_json()
+    assert "id" in response_json
+    assert isinstance(response_json["id"], int)
 
 
 def test_submit_question_no_data(test_client):
