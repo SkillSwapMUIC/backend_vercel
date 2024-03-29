@@ -11,6 +11,7 @@ qanda_route = Blueprint("qanda", __name__)
 
 @qanda_route.route("/question/submit", methods=["POST"])
 def submit_question():
+    print(request.get_json())
     try:
         data = request.get_json()
         if not data:
@@ -18,8 +19,9 @@ def submit_question():
 
         title = data.get("title")
         question_text = data.get("content")
-        user_id = data.get("user_id")
-        tags = data.get("subject")
+        # user_id = data.get("user_id")
+        user_id = "Mock user"
+        tags = [data.get("subject")]
 
         if not all([title, question_text, user_id, tags]):
             return jsonify({"error": "Missing required question fields"}), 400
@@ -39,19 +41,32 @@ def submit_question():
         db.session.add(question)
         db.session.commit()
 
-        return jsonify({"message": "Question successfully placed"}), 201
+        question_id = question.id
+
+        return (
+            jsonify(
+                {
+                    "id": question_id,
+                    "title": title,
+                    "content": question_text,
+                    "subject": tags[0],
+                }
+            ),
+            201,
+        )
 
     except exc.IntegrityError as e:
         db.session.rollback()
+        print("Integriory errpr")
         return jsonify({"error": str(e.orig)}), 400
     except exc.SQLAlchemyError as e:
         db.session.rollback()
+        print("SQL Alechemy Error")
         return jsonify({"error": str(e)}), 500
-    except Exception:
-        return (
-            jsonify({"error": "An error occurred", "error_message": str(Exception)}),
-            500,
-        )
+    except Exception as e:
+        print("any exception")
+        print(e)
+        return jsonify({"error": "An error occurred"}), 500
 
 
 @qanda_route.route("/getrandomsixtitles", methods=["GET"])
