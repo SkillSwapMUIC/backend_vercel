@@ -19,8 +19,14 @@ def submit_question():
 
         title = data.get("title")
         question_text = data.get("content")
-        # user_id = data.get("user_id")
-        user_id = "Mock user"
+
+        # Get the user ID from the session
+        # user_id = session.get("user_id")
+        user_id = None
+        print(user_id)
+
+        if not user_id:
+            user_id = "anonymous"
         tags = [data.get("subject")]
 
         if not all([title, question_text, user_id, tags]):
