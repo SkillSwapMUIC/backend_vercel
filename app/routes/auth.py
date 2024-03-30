@@ -1,6 +1,8 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, session
 from google.auth.transport import requests
 from google.oauth2 import id_token
+
+# from app.session_provider import provider as session
 
 auth_route = Blueprint("auth", __name__)
 
@@ -28,6 +30,9 @@ def login_to_backend():
         print(verified_name)
 
         # Store the email in the session
+        session["email"] = email
+        print(session)
+        print(session["email"])
 
         return "Successfully logged in as " + email + " with role " + role
 

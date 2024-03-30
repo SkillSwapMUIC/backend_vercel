@@ -1,10 +1,12 @@
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from sqlalchemy import exc, func
 
 from app.db import db
 from app.models.question import Question
+
+# from app.session_provider import provider as session
 
 qanda_route = Blueprint("qanda", __name__)
 
@@ -22,7 +24,10 @@ def submit_question():
 
         # Get the user ID from the session
         # user_id = session.get("user_id")
-        user_id = None
+        print("Session Contents:", session)
+
+        user_id = session.get("email")
+
         print(user_id)
 
         if not user_id:

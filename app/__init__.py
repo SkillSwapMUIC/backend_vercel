@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_session import Session
 
 from app.db import db
 
@@ -14,10 +15,17 @@ def create_app():
         "mysql+pymysql://sql6694920:hkMeVmh7Sc@sql6.freemysqlhosting.net:3306/sql6694920"
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SESSION_TYPE"] = "sqlalchemy"
+
     db.init_app(app)
 
-    app.config["SESSION_TYPE"] = "sqlalchemy"
-    app.config["SESSION_SQLALCHEMY_DB"] = db
+    app.config["SESSION_SQLALCHEMY"] = db
+    app.config["SESSION_COOKIE_NAME"] = "session_of_skillswap"
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_USE_SIGNER"] = True
+    app.config["SESSION_KEY_PREFIX"] = "SESSION"
+
+    Session(app)
 
     with app.app_context():
         # Importing models here ensures they are properly registered with SQLAlchemy
@@ -43,6 +51,3 @@ def create_app():
         app.register_blueprint(auth_route, url_prefix="/auth")
 
         return app
-
-
-app = create_app()
