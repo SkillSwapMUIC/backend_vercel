@@ -5,6 +5,7 @@ from sqlalchemy import exc, func
 
 from app.db import db
 from app.models.question import Question
+from app.models.answer import Answer
 
 qanda_route = Blueprint("qanda", __name__)
 
@@ -39,7 +40,7 @@ def submit_question():
         db.session.add(question)
         db.session.commit()
 
-        return jsonify({"message": "Question successfully placed"}), 201
+        return jsonify({"message": "Question successfully placed", "id": question.id}), 201
 
     except exc.IntegrityError as e:
         db.session.rollback()
@@ -95,7 +96,7 @@ def get_questions():
     return jsonify(question_list), 200
 
 
-@qanda_route.route("question/<int:question_id>/answer", methods=["POST"])
+@qanda_route.route("/question/<int:question_id>/answer", methods=["POST"])
 def answer_question(question_id):
     question = Question.query.get(question_id)
     if not question:
@@ -105,10 +106,90 @@ def answer_question(question_id):
     if not answer:
         return jsonify({"error": "No answer provided"}), 400
 
-    question.answer = answer
+    answer = Answer(content=answer, question_id=question_id)
+
+    db.session.add(answer)
     db.session.commit()
 
-    return jsonify({"message": "Answer submitted successfully"}), 200
+    return jsonify({"message": "Answer submitted successfully"}), 201
+
+
+@qanda_route.route("/question/<int:question_id>/answers", methods=["GET"])
+def get_answers(question_id):
+    answers = Answer.query.filter_by(question_id=question_id).all()
+
+    if not answers:
+        return jsonify({"error": "No answers found for the given question"}), 404
+
+    answer_list = []
+    for answer in answers:
+        answer_list.append({
+            "id": answer.id,
+            "content": answer.content
+        })
+
+    return jsonify(answer_list), 200
+
+@qanda_route.route("answer/<int:answer_id>/reply", methods=["POST"])
+def reply_to_answer(answer_id):
+    parent_answer = Answer.query.get(answer_id)
+    if not parent_answer:
+        return jsonify({"error": "Parent answer not found"}), 404
+
+    reply_content = request.json.get("reply")
+    if not reply_content:
+        return jsonify({"error": "No reply content provided"}), 400
+
+    reply = Answer(content=reply_content, parent_answer_id=answer_id)
+    db.session.add(reply)
+    db.session.commit()
+
+    return jsonify({"message": "Reply submitted successfully"}), 201
+
+@qanda_route.route("/answers/<int:parent_answer_id>/replies", methods=["GET"])
+def get_replies(parent_answer_id):
+    replies = Answer.query.filter_by(parent_answer_id=parent_answer_id).all()
+
+    return jsonify([{
+        "id": reply.id,
+        "content": reply.content,
+        "parent_answer_id": reply.parent_answer_id
+    } for reply in replies]), 200
+
+#####################################################
+def get_all_answers_replies(answers, all_responses):
+    for answer in answers:
+        response = {
+            "id": answer.id,
+            "content": answer.content,
+            "question_id": answer.question_id,
+            "parent_answer_id": answer.parent_answer_id,
+            "replies": []
+        }
+        get_all_replies(answer, response["replies"])
+        all_responses.append(response)
+
+def get_all_replies(answer, replies):
+    for reply in answer.replies:
+        reply_data = {
+            "id": reply.id,
+            "content": reply.content,
+            "question_id": reply.question_id,
+            "parent_answer_id": reply.parent_answer_id
+        }
+        replies.append(reply_data)
+        get_all_replies(reply, replies)
+
+
+@qanda_route.route("/questions/<int:question_id>/answers/replies", methods=["GET"])
+def get_all_answers_and_replies(question_id):
+    answers = Answer.query.filter_by(question_id=question_id, parent_answer_id=None).all()
+
+    all_responses = []
+
+    get_all_answers_replies(answers, all_responses)
+
+    return jsonify(all_responses), 200
 
 
 @qanda_route.route("/question/delete/<int:question_id>", methods=["DELETE"])
