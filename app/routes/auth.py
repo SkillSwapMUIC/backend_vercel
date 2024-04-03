@@ -1,41 +1,36 @@
-from flask import Blueprint, request, session
-from google.auth.transport import requests
-from google.oauth2 import id_token
+import hashlib
 
-# from app.session_provider import provider as session
+from flask import Blueprint, request
+
+from app import db
+from app.models.user import User
 
 auth_route = Blueprint("auth", __name__)
 
 
 @auth_route.route("/login", methods=["POST"])
 def login_to_backend():
-    data = request.json
-    email = data.get("email")
-    role = data.get("login_as")
+    data = request.get_json()
+    email = data.get("username")
+    password = data.get("password")
+    # role = data.get("role")
+    role = "user"
+    user = User.query.filter_by(email=email).first()
 
-    token = data.get("idToken")
-    try:
-        # Verify the token
-        idinfo = id_token.verify_oauth2_token(token, requests.Request())
+    if not user:
+        # generate auth_token from email and password, by hashing the string "email:password"
+        auth_token = str(email + ":" + password)
+        auth_token = hashlib.sha256(auth_token.encode()).hexdigest()
 
-        print(idinfo)
-        print(email, "is logged in as", role)
-        # Extract necessary information
-        verified_email = idinfo["email"]
-
-        if email != verified_email:
-            return "Invalid token"
-
-        verified_name = idinfo["name"]
-        print(verified_name)
-
-        # Store the email in the session
-        session["email"] = email
-        print(session)
-        print(session["email"])
-
-        return "Successfully logged in as " + email + " with role " + role
-
-    except ValueError:
-        # Invalid token
-        return "Invalid token"
+        user = User(email=email, password=password, auth_token=auth_token, role=role)
+        # add user to the database
+        db.session.add(user)
+        db.session.commit()
+        print(auth_token)
+        return auth_token, 200
+    elif user.check_password(password):
+        auth_token = user.auth_token
+        print(auth_token)
+        return auth_token, 200
+    else:
+        return {"error": "Invalid email or password"}, 401
