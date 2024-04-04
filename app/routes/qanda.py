@@ -21,11 +21,14 @@ def submit_question():
         title = data.get("title")
         question_text = data.get("content")
 
-        user_id = data.get("auth_token")
+        try:
+            user_id = data.get("auth_token")
+        except KeyError:
+            user_id = "anonymous"
 
-        subject = [data.get("subject")]
+        subject = data.get("subject")
 
-        if not all([title, question_text, user_id, subject]):
+        if not all([title, question_text, subject]):
             return jsonify({"error": "Missing required question fields"}), 400
 
         question = Question(
