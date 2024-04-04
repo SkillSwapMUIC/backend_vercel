@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_migrate import Migrate
 
 from app.db import db
 
@@ -16,7 +15,6 @@ def create_app():
     )
 
     db.init_app(app)
-    migrate = Migrate(app, db)
     with app.app_context():
         # Importing models here ensures they are properly registered with SQLAlchemy
         from app.models import course  # noqa
