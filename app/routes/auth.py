@@ -1,6 +1,6 @@
 import hashlib
 
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 
 from app import db
 from app.models.user import User
@@ -13,8 +13,7 @@ def login_to_backend():
     data = request.get_json()
     email = data.get("username")
     password = data.get("password")
-    # role = data.get("role")
-    role = "user"
+    role = data.get("role")
     user = User.query.filter_by(email=email).first()
 
     if not user:
@@ -26,11 +25,11 @@ def login_to_backend():
         # add user to the database
         db.session.add(user)
         db.session.commit()
-        print(auth_token)
-        return auth_token, 200
+        print("logged in with auth_token: " + str(auth_token))
+        return jsonify({"auth_token": auth_token}), 200
     elif user.check_password(password):
         auth_token = user.auth_token
         print(auth_token)
-        return auth_token, 200
+        return jsonify({"auth_token": auth_token}), 200
     else:
         return {"error": "Invalid email or password"}, 401

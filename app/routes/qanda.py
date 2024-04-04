@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 from sqlalchemy import exc, func
 
 from app.db import db
-from app.models.question import Question
 from app.models.answer import Answer
+from app.models.question import Question
 
 # from app.session_provider import provider as session
 
@@ -23,16 +23,8 @@ def submit_question():
         title = data.get("title")
         question_text = data.get("content")
 
-        # Get the user ID from the session
-        # user_id = session.get("user_id")
-        print("Session Contents:", session)
+        user_id = data.get("auth_token")
 
-        user_id = session.get("email")
-
-        print(user_id)
-
-        if not user_id:
-            user_id = "anonymous"
         tags = [data.get("subject")]
 
         if not all([title, question_text, user_id, tags]):
@@ -104,7 +96,7 @@ def get_question(question_id):
             jsonify(
                 {
                     "title": question.title,
-                    "question_text": question.question_text,
+                    "content": question.question_text,
                     "user_id": question.user_id,
                     "tags": question.tags,
                     "created_at": question.created_at,
@@ -125,7 +117,7 @@ def get_questions():
     return jsonify(question_list), 200
 
 
-@qanda_route.route("/question/<int:question_id>/answer", methods=["POST"])
+@qanda_route.route("answer-on/<int:question_id>", methods=["POST"])
 def answer_question(question_id):
     question = Question.query.get(question_id)
     if not question:
@@ -152,12 +144,10 @@ def get_answers(question_id):
 
     answer_list = []
     for answer in answers:
-        answer_list.append({
-            "id": answer.id,
-            "content": answer.content
-        })
+        answer_list.append({"id": answer.id, "content": answer.content})
 
     return jsonify(answer_list), 200
+
 
 @qanda_route.route("answer/<int:answer_id>/reply", methods=["POST"])
 def reply_to_answer(answer_id):
@@ -175,17 +165,26 @@ def reply_to_answer(answer_id):
 
     return jsonify({"message": "Reply submitted successfully"}), 201
 
+
 @qanda_route.route("/answers/<int:parent_answer_id>/replies", methods=["GET"])
 def get_replies(parent_answer_id):
     replies = Answer.query.filter_by(parent_answer_id=parent_answer_id).all()
 
-    return jsonify([{
-        "id": reply.id,
-        "content": reply.content,
-        "parent_answer_id": reply.parent_answer_id
-    } for reply in replies]), 200
+    return (
+        jsonify(
+            [
+                {
+                    "id": reply.id,
+                    "content": reply.content,
+                    "parent_answer_id": reply.parent_answer_id,
+                }
+                for reply in replies
+            ]
+        ),
+        200,
+    )
 
-#####################################################
+
 def get_all_answers_replies(answers, all_responses):
     for answer in answers:
         response = {
@@ -193,10 +192,11 @@ def get_all_answers_replies(answers, all_responses):
             "content": answer.content,
             "question_id": answer.question_id,
             "parent_answer_id": answer.parent_answer_id,
-            "replies": []
+            "replies": [],
         }
         get_all_replies(answer, response["replies"])
         all_responses.append(response)
+
 
 def get_all_replies(answer, replies):
     for reply in answer.replies:
@@ -204,7 +204,7 @@ def get_all_replies(answer, replies):
             "id": reply.id,
             "content": reply.content,
             "question_id": reply.question_id,
-            "parent_answer_id": reply.parent_answer_id
+            "parent_answer_id": reply.parent_answer_id,
         }
         replies.append(reply_data)
         get_all_replies(reply, replies)
@@ -212,7 +212,9 @@ def get_all_replies(answer, replies):
 
 @qanda_route.route("/questions/<int:question_id>/answers/replies", methods=["GET"])
 def get_all_answers_and_replies(question_id):
-    answers = Answer.query.filter_by(question_id=question_id, parent_answer_id=None).all()
+    answers = Answer.query.filter_by(
+        question_id=question_id, parent_answer_id=None
+    ).all()
 
     all_responses = []
 
