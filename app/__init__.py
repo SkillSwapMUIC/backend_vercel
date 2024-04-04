@@ -6,12 +6,14 @@ from app.db import db
 
 def create_app():
     app = Flask(__name__)
+    app.secret_key = (
+        "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"  # Change this to your secret key
+    )
 
     # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "mysql+pymysql://sql6694920:hkMeVmh7Sc@sql6.freemysqlhosting.net:3306/sql6694920"
     )
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -24,6 +26,7 @@ def create_app():
         # Create database tables if they don't exist
         db.create_all()
 
+        from app.routes.auth import auth_route
         from app.routes.course import course_route
         from app.routes.home import home_route
         from app.routes.qanda import qanda_route
@@ -35,8 +38,6 @@ def create_app():
         app.register_blueprint(user_route, url_prefix="/user")
         app.register_blueprint(course_route, url_prefix="/course")
         app.register_blueprint(search_route, url_prefix="/search")
+        app.register_blueprint(auth_route, url_prefix="/auth")
 
         return app
-
-
-app = create_app()

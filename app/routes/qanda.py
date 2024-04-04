@@ -1,11 +1,13 @@
 from datetime import datetime
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from sqlalchemy import exc, func
 
 from app.db import db
 from app.models.question import Question
 from app.models.answer import Answer
+
+# from app.session_provider import provider as session
 
 qanda_route = Blueprint("qanda", __name__)
 
@@ -20,8 +22,17 @@ def submit_question():
 
         title = data.get("title")
         question_text = data.get("content")
-        # user_id = data.get("user_id")
-        user_id = "Mock user"
+
+        # Get the user ID from the session
+        # user_id = session.get("user_id")
+        print("Session Contents:", session)
+
+        user_id = session.get("email")
+
+        print(user_id)
+
+        if not user_id:
+            user_id = "anonymous"
         tags = [data.get("subject")]
 
         if not all([title, question_text, user_id, tags]):
