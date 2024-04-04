@@ -9,10 +9,8 @@ def create_app():
         "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"  # Change this to your secret key
     )
 
-    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "mysql+pymysql://sql6694920:hkMeVmh7Sc@sql6.freemysqlhosting.net:3306/sql6694920"
-    )
+    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://root:biqHV5nNSu1OeaBcp4Vwyg6DTqihKJ9D@dpg-co7cesf79t8c73a3pr00-a.singapore-postgres.render.com/remote_pg_db_pr3l"
+
 
     db.init_app(app)
     with app.app_context():
