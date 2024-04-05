@@ -36,3 +36,14 @@ def is_teacher(auth_token):
     except Exception as e:
         print(e)
         return False
+
+
+# def user_allowed_to_edit_post(auth_token, post_id):
+#     post = Post.query.filter_by(id=post_id).first()
+#
+#     if auth_token == post.user_id:
+#         return True
+#     # elif user.role == "teacher":
+#     #     return True
+#     else:
+#         return False

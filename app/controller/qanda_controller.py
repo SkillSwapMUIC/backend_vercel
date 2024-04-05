@@ -44,7 +44,7 @@ def get_question_by_id(question_id):
     return db.session.get(Post, question_id)
 
 
-def get_thread_by_id(question_id):
+def get_thread_by_id(question_id, auth_token):
     try:
         question = Post.query.get(question_id)
         if not question:
@@ -62,8 +62,16 @@ def get_thread_by_id(question_id):
             else:
                 creator_email = "unknown"
 
+            allowed_to_edit = auth_token == answer.creator
+            print(auth_token, answer.creator, allowed_to_edit)
+
             formatted_answers.append(
-                {"id": answer.id, "content": answer.content, "creator": creator_email}
+                {
+                    "id": answer.id,
+                    "content": answer.content,
+                    "creator": creator_email,
+                    "allowed_to_edit": allowed_to_edit,
+                }
             )
 
         creator = User.query.filter_by(auth_token=question.creator).first()
@@ -80,6 +88,7 @@ def get_thread_by_id(question_id):
             "creator": creator_email,
             "answers": formatted_answers,
             "latex_content": question.latex_content,
+            "allowed_to_edit": auth_token == question.creator,
             "image_url": question.image_url,
         }
 

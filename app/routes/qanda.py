@@ -87,10 +87,12 @@ def get_random_six_titles():
         return jsonify({"error": str(e)}), 500
 
 
-@qanda_route.route("/thread/byid/<int:question_id>", methods=["GET"])
+@qanda_route.route("/thread/byid/<int:question_id>", methods=["POST"])
 def get_question(question_id):
+
     try:
-        thread = qanda_controller.get_thread_by_id(question_id)
+        auth_token = request.get_json().get("auth_token")
+        thread = qanda_controller.get_thread_by_id(question_id, auth_token)
         return (
             jsonify(thread),
             200,
