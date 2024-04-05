@@ -1,14 +1,18 @@
 from flask import Flask
 
 from app.db import db
-from app.db_config import db_url, secret_key
+
+# from app.db_config import SKILLSWAP_SECRET_KEY
 
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = secret_key
+    app.secret_key = "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        "postgresql://root:biqHV5nNSu1OeaBcp4Vwyg6DTqihKJ9D@dpg"
+        "-co7cesf79t8c73a3pr00-a.singapore-postgres.render.com/remote_pg_db_pr3l"
+    )
 
     db.init_app(app)
     with app.app_context():
