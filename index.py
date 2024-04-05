@@ -11,7 +11,7 @@ CORS(
         r"/*": {
             "origins": [
                 "http://localhost:5173",
-                "https://frontend-vercel-lam0rsieb-jonas-projects-1617a641.vercel.app",
+                "https://frontend-vercel-fg02qzl6h-jonas-projects-1617a641.vercel.app",
             ]
         }
     },

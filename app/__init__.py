@@ -18,6 +18,7 @@ def create_app():
     with app.app_context():
         # Importing models here ensures they are properly registered with SQLAlchemy
         from app.models import course  # noqa
+        from app.models import post_qanda  # noqa
         from app.models import question  # noqa
         from app.models import user  # noqa
 
@@ -37,5 +38,15 @@ def create_app():
         app.register_blueprint(course_route, url_prefix="/course")
         app.register_blueprint(search_route, url_prefix="/search")
         app.register_blueprint(auth_route, url_prefix="/auth")
+
+        # Dropping the "post" table
+        # from sqlalchemy import MetaData, Table, create_engine, exc
+        # meta = MetaData()
+        # meta.reflect(bind=db.engine)
+        # try:
+        #     post_table = Table('post', meta, autoload=True, autoload_with=db.engine)
+        #     post_table.drop(db.engine)
+        # except exc.NoSuchTableError:
+        #     print("Table 'post' does not exist.")
 
         return app
