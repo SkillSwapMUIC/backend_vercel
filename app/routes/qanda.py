@@ -121,6 +121,18 @@ def get_all_subjects():
     return jsonify(subjects), 200
 
 
+@qanda_route.route("/delete/<int:post_id>", methods=["POST"])
+def delete_question(post_id):
+    auth_token = request.json.get("auth_token")
+
+    success = qanda_controller.delete_post(post_id, auth_token)
+
+    if success:
+        return jsonify({"message": "Question deleted successfully"}), 200
+    else:
+        return jsonify({"error": "Question not found or user not authorized"}), 404
+
+
 ############
 
 
@@ -224,22 +236,6 @@ def get_all_answers_and_replies(question_id):
     get_all_answers_replies(answers, all_responses)
 
     return jsonify(all_responses), 200
-
-
-@qanda_route.route("/question/delete/<int:question_id>", methods=["DELETE"])
-def delete_question(question_id):
-    question = Question.query.get(question_id)
-
-    if not question:
-        return jsonify({"error": f"Question with ID {question_id} not found"}), 404
-
-    db.session.delete(question)
-    db.session.commit()
-
-    return (
-        jsonify({"message": f"Question with ID {question_id} deleted successfully"}),
-        200,
-    )
 
 
 @qanda_route.route("/update/<int:question_id>", methods=["PUT"])

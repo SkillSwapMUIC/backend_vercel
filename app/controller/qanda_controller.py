@@ -2,6 +2,7 @@ from flask import jsonify
 from sqlalchemy import exc, func
 
 from app import db
+from app.controller import auth_controller
 from app.models.post_qanda import Post
 from app.models.user import User
 
@@ -62,15 +63,18 @@ def get_thread_by_id(question_id, auth_token):
             else:
                 creator_email = "unknown"
 
-            allowed_to_edit = auth_token == answer.creator
-            print(auth_token, answer.creator, allowed_to_edit)
+            allowed_to_edit_answer = auth_controller.user_allowed_to_edit_post(
+                auth_token, answer.id
+            )
+
+            print(auth_token, answer.creator, allowed_to_edit_answer)
 
             formatted_answers.append(
                 {
                     "id": answer.id,
                     "content": answer.content,
                     "creator": creator_email,
-                    "allowed_to_edit": allowed_to_edit,
+                    "allowed_to_edit": allowed_to_edit_answer,
                 }
             )
 
@@ -80,6 +84,10 @@ def get_thread_by_id(question_id, auth_token):
         else:
             creator_email = "unknown"
 
+        allowed_to_edit_question = auth_controller.user_allowed_to_edit_post(
+            auth_token, question_id
+        )
+
         thread = {
             "id": question.id,
             "title": question.title,
@@ -88,7 +96,7 @@ def get_thread_by_id(question_id, auth_token):
             "creator": creator_email,
             "answers": formatted_answers,
             "latex_content": question.latex_content,
-            "allowed_to_edit": auth_token == question.creator,
+            "allowed_to_edit": allowed_to_edit_question,
             "image_url": question.image_url,
         }
 
@@ -102,7 +110,6 @@ def get_thread_by_id(question_id, auth_token):
 
 
 def answer_on_question(question_id, answer, created_at, auth_token):
-
     answer = Post(
         content=answer,
         creator=auth_token,
@@ -128,3 +135,41 @@ def get_all_subjects():
         print(e)
         return []
     return subjects
+
+
+def delete_post(post_id, auth_token):
+    post = Post.query.get(post_id)
+
+    if not post:
+        return False, "not found"
+
+    if auth_controller.user_allowed_to_edit_post(auth_token, post_id) is False:
+        return False, "not allowed"
+
+    db.session.delete(post)
+    db.session.commit()
+    return True, "deleted"
+
+
+def search_for_post_by_key(search_key):
+    search_for = search_key
+    json_list = []
+
+    questions = (
+        Post.query.filter(Post.title.contains(search_for), Post.class_id == "question")
+        .limit(8)
+        .all()
+    )
+    for question in questions:
+        json_list.append({"result": question.title, "id": question.id})
+
+    answers = (
+        Post.query.filter(Post.content.contains(search_for), Post.class_id == "answer")
+        .limit(8)
+        .all()
+    )
+    for answer in answers:
+        question_id = answer.answering_on
+        json_list.append({"result": answer.content, "id": question_id})
+
+    return json_list

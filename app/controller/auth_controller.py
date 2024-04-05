@@ -1,6 +1,7 @@
 import hashlib
 
 from app import db
+from app.models.post_qanda import Post
 from app.models.user import User
 
 
@@ -38,12 +39,20 @@ def is_teacher(auth_token):
         return False
 
 
-# def user_allowed_to_edit_post(auth_token, post_id):
-#     post = Post.query.filter_by(id=post_id).first()
-#
-#     if auth_token == post.user_id:
-#         return True
-#     # elif user.role == "teacher":
-#     #     return True
-#     else:
-#         return False
+def user_allowed_to_edit_post(auth_token, post_id):
+    post = Post.query.filter_by(id=post_id).first()
+
+    if auth_token == post.creator:
+        return True
+    # elif user.role == "teacher":
+    #     return True
+    else:
+        return False
+
+
+def check_allowed(auth_token, role_required):
+    if auth_token:
+        user = User.query.filter_by(auth_token=auth_token).first()
+        if user and user.role == role_required:
+            return True
+    return False
