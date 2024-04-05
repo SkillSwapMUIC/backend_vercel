@@ -1,7 +1,9 @@
 from datetime import datetime
+from json import JSONDecodeError
 
 from flask import Blueprint, jsonify, request
 from sqlalchemy import exc
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.controller import qanda_controller
 from app.db import db
@@ -13,24 +15,19 @@ qanda_route = Blueprint("qanda", __name__)
 
 @qanda_route.route("/question/submit", methods=["POST"])
 def submit_question():
-    print(request.get_json())
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No input data provided"}), 400
 
+        required_fields = ["title", "content", "subject"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Not all required fields are given"}), 400
+
         title = data.get("title")
         question_text = data.get("content")
-
-        try:
-            user_id = data.get("auth_token")
-        except KeyError:
-            user_id = "anonymous"
-
+        user_id = data.get("auth_token", "anonymous")
         subject = data.get("subject")
-
-        if not all([title, question_text, subject]):
-            return jsonify({"error": "Missing required question fields"}), 400
 
         question_id = qanda_controller.post_question(
             title=title,
@@ -56,81 +53,112 @@ def submit_question():
 
     except exc.IntegrityError as e:
         db.session.rollback()
-        print("Integriory errpr")
-        return jsonify({"error": str(e.orig)}), 400
+        return jsonify({"error": "Integrity error: " + str(e.orig)}), 400
     except exc.SQLAlchemyError as e:
         db.session.rollback()
-        print("SQL Alechemy Error")
-        print(e)
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "SQLAlchemy error: " + str(e)}), 500
     except Exception as e:
-        print("any exception")
-        print(e)
-        return jsonify({"error": "An error occurred"}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/getrandomsixtitles", methods=["GET"])
 def get_random_six_titles():
     try:
-
         six_random_questions = qanda_controller.get_random_six_questions()
-
-        print(six_random_questions)
 
         json_list = [
             {"title": question.title, "id": question.id}
             for question in six_random_questions
         ]
-        print(json_list)
         return jsonify(json_list), 200
-    except exc.SQLAlchemyError as e:
-        return jsonify({"error": str(e)}), 500
+
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except JSONDecodeError as e:
+        return jsonify({"error": "JSON error: " + str(e)}), 500
+    except Exception as e:
+        print("An error occurred:", e)
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/thread/byid/<int:question_id>", methods=["POST"])
 def get_question(question_id):
-
     try:
         auth_token = request.get_json().get("auth_token")
+
+        if not auth_token:
+            return jsonify({"error": "No auth token provided"}), 400
+
         thread = qanda_controller.get_thread_by_id(question_id, auth_token)
+        if not thread:
+            return jsonify({"error": "No thread found for the given question id"}), 404
+
         return (
             jsonify(thread),
             200,
         )
-    except exc.SQLAlchemyError as e:
-        return jsonify({"error": str(e)}), 500
+
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except JSONDecodeError as e:
+        return jsonify({"error": "JSON error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("answer-on/<int:question_id>", methods=["POST"])
 def answer_question(question_id):
+    try:
+        answer_text = request.json.get("content")
+        auth_token = request.json.get("auth_token")
+        created_at = datetime.now()
 
-    answer_text = request.json.get("content")
-    auth_token = request.json.get("auth_token")
-    created_at = datetime.now()
+        qanda_controller.answer_on_question(
+            question_id, answer_text, created_at, auth_token
+        )
 
-    qanda_controller.answer_on_question(
-        question_id, answer_text, created_at, auth_token
-    )
+        return jsonify({"message": "Answer submitted successfully"}), 201
 
-    return jsonify({"message": "Answer submitted successfully"}), 201
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except JSONDecodeError as e:
+        return jsonify({"error": "JSON error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("all-subjects", methods=["GET"])
 def get_all_subjects():
-    subjects = qanda_controller.get_all_subjects()
-    return jsonify(subjects), 200
+    try:
+        subjects = qanda_controller.get_all_subjects()
+        return jsonify(subjects), 200
+
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except JSONDecodeError as e:
+        return jsonify({"error": "JSON error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/delete/<int:post_id>", methods=["POST"])
 def delete_question(post_id):
-    auth_token = request.json.get("auth_token")
+    try:
+        auth_token = request.json.get("auth_token")
 
-    success = qanda_controller.delete_post(post_id, auth_token)
+        success = qanda_controller.delete_post(post_id, auth_token)
 
-    if success:
-        return jsonify({"message": "Question deleted successfully"}), 200
-    else:
-        return jsonify({"error": "Question not found or user not authorized"}), 404
+        if success:
+            return jsonify({"message": "Question deleted successfully"}), 200
+        else:
+            return jsonify({"error": "Question not found or user not authorized"}), 404
+
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except JSONDecodeError as e:
+        return jsonify({"error": "JSON error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 ############

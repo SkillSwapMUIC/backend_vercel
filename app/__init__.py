@@ -30,11 +30,9 @@ def create_app():
         from app.routes.home import home_route
         from app.routes.qanda import qanda_route
         from app.routes.search import search_route
-        from app.routes.user import user_route
 
         app.register_blueprint(home_route, url_prefix="/")
         app.register_blueprint(qanda_route, url_prefix="/qanda")
-        app.register_blueprint(user_route, url_prefix="/user")
         app.register_blueprint(course_route, url_prefix="/course")
         app.register_blueprint(search_route, url_prefix="/search")
         app.register_blueprint(auth_route, url_prefix="/auth")

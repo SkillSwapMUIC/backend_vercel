@@ -14,7 +14,6 @@ def login_user(email, password, role):
         auth_token = hashlib.sha256(auth_token.encode()).hexdigest()
 
         user = User(email=email, password=password, auth_token=auth_token, role=role)
-        # add user to the database
         db.session.add(user)
         db.session.commit()
         print("logged in with auth_token: " + str(auth_token))
@@ -44,8 +43,6 @@ def user_allowed_to_edit_post(auth_token, post_id):
 
     if auth_token == post.creator:
         return True
-    # elif user.role == "teacher":
-    #     return True
     else:
         return False
 

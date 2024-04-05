@@ -5,6 +5,8 @@ from app.models.course import Course
 
 course_route = Blueprint("course", __name__)
 
+# all still in the making, not productive yet
+
 
 @course_route.route("/manage", methods=["GET", "POST"])
 def manage_courses():
