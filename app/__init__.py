@@ -1,22 +1,20 @@
 from flask import Flask
-from flask_migrate import Migrate
 
 from app.db import db
+
+# from app.db_config import SKILLSWAP_SECRET_KEY
 
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = (
-        "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"  # Change this to your secret key
-    )
+    app.secret_key = "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"
 
-    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
     app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "mysql+pymysql://sql6694920:hkMeVmh7Sc@sql6.freemysqlhosting.net:3306/sql6694920"
+        "postgresql://root:biqHV5nNSu1OeaBcp4Vwyg6DTqihKJ9D@dpg"
+        "-co7cesf79t8c73a3pr00-a.singapore-postgres.render.com/remote_pg_db_pr3l"
     )
 
     db.init_app(app)
-    migrate = Migrate(app, db)
     with app.app_context():
         # Importing models here ensures they are properly registered with SQLAlchemy
         from app.models import course  # noqa

@@ -6,7 +6,7 @@ class Question(db.Model):
     title = db.Column(db.String(80), unique=False, nullable=False)
     question_text = db.Column(db.String(120), unique=False, nullable=False)
     user_id = db.Column(db.String(20), unique=False, nullable=False)
-    tags = db.Column(db.String(200), unique=False, nullable=False)
+    subject = db.Column(db.String(200), unique=False, nullable=False)
     created_at = db.Column(db.String(100), unique=False, nullable=False)
 
     def __repr__(self):

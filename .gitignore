@@ -14,3 +14,5 @@ venv.bak/
 .DS_Store
 .pytest_cache
 .DS_Store
+app/db_config.py
+app/db_config.py
