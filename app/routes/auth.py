@@ -33,3 +33,17 @@ def login_to_backend():
         return jsonify({"auth_token": auth_token}), 200
     else:
         return {"error": "Invalid email or password"}, 401
+
+
+@auth_route.route("/is-teacher", methods=["Post"])
+def is_teacher():
+    auth_token = str(request.get_json().get("auth_token"))
+    try:
+        user = User.query.filter_by(auth_token=auth_token).first()
+        if user.role == "teacher":
+            return jsonify({"access_allowed": str(True)}), 200
+        else:
+            return jsonify({"access_allowed": str(False)}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"access_allowed": str(False)}), 200

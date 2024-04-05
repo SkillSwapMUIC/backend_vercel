@@ -38,6 +38,8 @@ def submit_question():
             auth_token=user_id,
             subject=subject,
             created_at=datetime.now(),
+            latex_content=data.get("latex_content"),
+            image_url=data.get("image_url"),
         )
 
         return (
@@ -109,6 +111,12 @@ def answer_question(question_id):
     )
 
     return jsonify({"message": "Answer submitted successfully"}), 201
+
+
+@qanda_route.route("all-subjects", methods=["GET"])
+def get_all_subjects():
+    subjects = qanda_controller.get_all_subjects()
+    return jsonify(subjects), 200
 
 
 ############

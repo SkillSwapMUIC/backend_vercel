@@ -6,7 +6,9 @@ from app.models.post_qanda import Post
 from app.models.user import User
 
 
-def post_question(title, question_text, auth_token, subject, created_at):
+def post_question(
+    title, question_text, auth_token, subject, created_at, latex_content, image_url
+):
     question = Post(
         title=title,
         content=question_text,
@@ -14,6 +16,8 @@ def post_question(title, question_text, auth_token, subject, created_at):
         subject=subject,
         created_at=created_at,
         class_id="question",
+        latex_content=latex_content,
+        image_url=image_url,
     )
 
     db.session.add(question)
@@ -75,6 +79,8 @@ def get_thread_by_id(question_id):
             "subject": question.subject,
             "creator": creator_email,
             "answers": formatted_answers,
+            "latex_content": question.latex_content,
+            "image_url": question.image_url,
         }
 
         print(thread)
@@ -98,3 +104,18 @@ def answer_on_question(question_id, answer, created_at, auth_token):
 
     db.session.add(answer)
     db.session.commit()
+
+
+def get_all_subjects():
+    try:
+        posts = (
+            Post.query.filter(Post.class_id == "question").distinct(Post.subject).all()
+        )
+        subjects = []
+        for subject in posts:
+            print(subject.subject)
+            subjects.append(subject.subject)
+    except exc.SQLAlchemyError as e:
+        print(e)
+        return []
+    return subjects
