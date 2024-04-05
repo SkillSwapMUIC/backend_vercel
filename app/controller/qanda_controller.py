@@ -77,6 +77,8 @@ def get_thread_by_id(question_id):
             "answers": formatted_answers,
         }
 
+        print(thread)
+
         return thread
 
     except exc.SQLAlchemyError as e:

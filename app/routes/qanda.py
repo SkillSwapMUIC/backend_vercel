@@ -97,15 +97,6 @@ def get_question(question_id):
         return jsonify({"error": str(e)}), 500
 
 
-@qanda_route.route("/allquestions", methods=["GET"])
-def get_questions():
-    questions = Question.query.all()
-    question_list = [
-        {"id": q.id, "title": q.title, "text": q.question_text} for q in questions
-    ]
-    return jsonify(question_list), 200
-
-
 @qanda_route.route("answer-on/<int:question_id>", methods=["POST"])
 def answer_question(question_id):
 
@@ -118,6 +109,23 @@ def answer_question(question_id):
     )
 
     return jsonify({"message": "Answer submitted successfully"}), 201
+
+
+############
+
+
+#####
+
+# everything below here is for later, no usage yet
+
+
+@qanda_route.route("/allquestions", methods=["GET"])
+def get_questions():
+    questions = Question.query.all()
+    question_list = [
+        {"id": q.id, "title": q.title, "text": q.question_text} for q in questions
+    ]
+    return jsonify(question_list), 200
 
 
 @qanda_route.route("/question/<int:question_id>/answers", methods=["GET"])
