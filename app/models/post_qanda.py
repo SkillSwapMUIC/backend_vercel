@@ -11,7 +11,7 @@ class Post(db.Model):
     answering_on = db.Column(db.String(20), unique=False, nullable=True)
     created_at = db.Column(db.String(100), unique=False, nullable=False)
     latex_content = db.Column(db.String(8000), unique=False, nullable=True)
-    image_url = db.Column(db.String(200), unique=False, nullable=True)
+    image_url = db.Column(db.String(1000), unique=False, nullable=True)
 
     def __repr__(self):
         return "<Post %r>" % self.id
