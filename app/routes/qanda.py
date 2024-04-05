@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from flask import Blueprint, jsonify, request
-from sqlalchemy import exc, func
+from sqlalchemy import exc
 
+from app.controller import qanda_controller
 from app.db import db
 from app.models.answer import Answer
 from app.models.question import Question
@@ -31,18 +32,13 @@ def submit_question():
         if not all([title, question_text, subject]):
             return jsonify({"error": "Missing required question fields"}), 400
 
-        question = Question(
+        question_id = qanda_controller.post_question(
             title=title,
             question_text=question_text,
-            user_id=user_id,
+            auth_token=user_id,
             subject=subject,
             created_at=datetime.now(),
         )
-
-        db.session.add(question)
-        db.session.commit()
-
-        question_id = question.id
 
         return (
             jsonify(
@@ -63,6 +59,7 @@ def submit_question():
     except exc.SQLAlchemyError as e:
         db.session.rollback()
         print("SQL Alechemy Error")
+        print(e)
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         print("any exception")
@@ -73,11 +70,16 @@ def submit_question():
 @qanda_route.route("/getrandomsixtitles", methods=["GET"])
 def get_random_six_titles():
     try:
-        six_random_questions = Question.query.order_by(func.random()).limit(6).all()
+
+        six_random_questions = qanda_controller.get_random_six_questions()
+
+        print(six_random_questions)
+
         json_list = [
             {"title": question.title, "id": question.id}
             for question in six_random_questions
         ]
+        print(json_list)
         return jsonify(json_list), 200
     except exc.SQLAlchemyError as e:
         return jsonify({"error": str(e)}), 500
@@ -86,19 +88,9 @@ def get_random_six_titles():
 @qanda_route.route("/thread/byid/<int:question_id>", methods=["GET"])
 def get_question(question_id):
     try:
-        question = db.session.get(Question, question_id)
-        if question is None:
-            return jsonify({"error": "Question not found"}), 404
+        thread = qanda_controller.get_thread_by_id(question_id)
         return (
-            jsonify(
-                {
-                    "title": question.title,
-                    "content": question.question_text,
-                    "user_id": question.user_id,
-                    "subject": question.subject,
-                    "created_at": question.created_at,
-                }
-            ),
+            jsonify(thread),
             200,
         )
     except exc.SQLAlchemyError as e:
@@ -116,18 +108,14 @@ def get_questions():
 
 @qanda_route.route("answer-on/<int:question_id>", methods=["POST"])
 def answer_question(question_id):
-    question = Question.query.get(question_id)
-    if not question:
-        return jsonify({"error": "Question not found"}), 404
 
-    answer = request.json.get("answer")
-    if not answer:
-        return jsonify({"error": "No answer provided"}), 400
+    answer_text = request.json.get("content")
+    auth_token = request.json.get("auth_token")
+    created_at = datetime.now()
 
-    answer = Answer(content=answer, question_id=question_id)
-
-    db.session.add(answer)
-    db.session.commit()
+    qanda_controller.answer_on_question(
+        question_id, answer_text, created_at, auth_token
+    )
 
     return jsonify({"message": "Answer submitted successfully"}), 201
 
@@ -160,7 +148,7 @@ def reply_to_answer(answer_id):
     db.session.add(reply)
     db.session.commit()
 
-    return jsonify({"message": "Reply submitted successfully"}), 201
+    return jsonify({"message": "successful"}), 201
 
 
 @qanda_route.route("/answers/<int:parent_answer_id>/replies", methods=["GET"])
