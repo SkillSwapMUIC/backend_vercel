@@ -86,9 +86,6 @@ def get_question(question_id):
     try:
         auth_token = request.get_json().get("auth_token")
 
-        if not auth_token:
-            return jsonify({"error": "No auth token provided"}), 400
-
         thread = qanda_controller.get_thread_by_id(question_id, auth_token)
         if not thread:
             return jsonify({"error": "No thread found for the given question id"}), 404
