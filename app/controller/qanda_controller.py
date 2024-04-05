@@ -152,11 +152,11 @@ def delete_post(post_id, auth_token):
 
 
 def search_for_post_by_key(search_key):
-    search_for = search_key
+    search_for = f"%{search_key}%"  # Adding wildcards for partial matching
     json_list = []
 
     questions = (
-        Post.query.filter(Post.title.contains(search_for), Post.class_id == "question")
+        Post.query.filter(Post.title.ilike(search_for), Post.class_id == "question")
         .limit(8)
         .all()
     )
@@ -164,7 +164,7 @@ def search_for_post_by_key(search_key):
         json_list.append({"result": question.title, "id": question.id})
 
     answers = (
-        Post.query.filter(Post.content.contains(search_for), Post.class_id == "answer")
+        Post.query.filter(Post.content.ilike(search_for), Post.class_id == "answer")
         .limit(8)
         .all()
     )
