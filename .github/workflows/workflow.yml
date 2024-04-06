@@ -13,13 +13,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - name: Setup Python
+      uses: actions/setup-python@v2
       with:
-        node-version: '16'
+        python-version: '3.x'
+
+    - name: Install Vercel CLI
+      run: npm install -g vercel
 
     - name: Install dependencies
-      run: npm install
+      run: pip install -r requirements.txt
 
     - name: Deploy to Vercel
       uses: amondnet/vercel-action@v20
