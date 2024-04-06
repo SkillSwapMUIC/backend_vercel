@@ -1,13 +1,20 @@
 from flask import Flask
+import os
 
 from app.db import db
-
-# from app.db_config import SKILLSWAP_SECRET_KEY
 
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = "iauhfiebndfciqbdfiuqbfiaqubfcnpuBDFCUQZEBFUQ"
+    app.secret_key = os.environ.get("FLASK_KEY")
+
+    ############################ Fixing the security, but it did not work ############################
+    #pg_user = os.environ.get("PG_USER")
+    #password = os.environ.get("PG_PASSWORD")
+    #app.config["SQLALCHEMY_DATABASE_URI"] = (
+       # f"postgresql://{pg_user}:{password}@dpg"
+       # "-co7cesf79t8c73a3pr00-a.singapore-postgres.render.com/remote_pg_db_pr3l"
+    #)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
         "postgresql://root:biqHV5nNSu1OeaBcp4Vwyg6DTqihKJ9D@dpg"
