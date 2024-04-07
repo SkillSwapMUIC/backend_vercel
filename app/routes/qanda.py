@@ -204,21 +204,36 @@ def delete_question(post_id):
         return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
+@qanda_route.route("/allquestions", methods=["GET"])
+def get_all_questions():
+    try:
+        questions = Question.query.all()
+        question_list = [
+            {
+                "id": question.id,
+                "title": question.title,
+                "content": question.question_text,
+                "subject": question.subject,
+                "created_at": question.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "latex_content": question.latex_content,
+                "image_url": question.image_url,
+            }
+            for question in questions
+        ]
+        return jsonify(question_list), 200
+
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
+
+
 ############
 
 
 #####
 
 # everything below here is for later, no usage yet
-
-
-@qanda_route.route("/allquestions", methods=["GET"])
-def get_questions():
-    questions = Question.query.all()
-    question_list = [
-        {"id": q.id, "title": q.title, "text": q.question_text} for q in questions
-    ]
-    return jsonify(question_list), 200
 
 
 @qanda_route.route("/question/<int:question_id>/answers", methods=["GET"])
