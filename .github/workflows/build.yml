@@ -21,6 +21,10 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
+    - name: Clean database
+      run: |
+        rm -f app.db
+
     - name: Run tests with coverage
       run: |
         pytest --cov=app.controller --cov=app.routes --cov-report=xml
