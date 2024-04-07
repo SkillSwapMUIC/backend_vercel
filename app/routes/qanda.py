@@ -12,9 +12,6 @@ from app.models.question import Question
 
 qanda_route = Blueprint("qanda", __name__)
 
-DATABASEERROR = "Database error: "
-JSONERROR = "JSON error: "
-ANERROR = "An error occurred: "
 
 @qanda_route.route("/question/submit", methods=["POST"])
 def submit_question():
@@ -61,7 +58,7 @@ def submit_question():
         db.session.rollback()
         return jsonify({"error": "SQLAlchemy error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/getrandomsixtitles", methods=["GET"])
@@ -76,12 +73,12 @@ def get_random_six_titles():
         return jsonify(json_list), 200
 
     except SQLAlchemyError as e:
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except JSONDecodeError as e:
-        return jsonify({"error": JSONERROR + str(e)}), 500
+        return jsonify({"error": "JSON error: " + str(e)}), 500
     except Exception as e:
         print("An error occurred:", e)
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/thread/byid/<int:question_id>", methods=["POST"])
@@ -99,11 +96,11 @@ def get_question(question_id):
         )
 
     except SQLAlchemyError as e:
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except JSONDecodeError as e:
-        return jsonify({"error": JSONERROR + str(e)}), 500
+        return jsonify({"error": "JSON error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("answer-on/<int:question_id>", methods=["POST"])
@@ -120,11 +117,11 @@ def answer_question(question_id):
         return jsonify({"message": "Answer submitted successfully"}), 201
 
     except SQLAlchemyError as e:
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except JSONDecodeError as e:
-        return jsonify({"error": JSONERROR + str(e)}), 500
+        return jsonify({"error": "JSON error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/edit_answer/<int:answer_id>", methods=["PUT"])
@@ -149,9 +146,9 @@ def update_answer(answer_id):
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/delete_answer/<int:answer_id>", methods=["DELETE"])
@@ -168,9 +165,9 @@ def delete_answer(answer_id):
 
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("all-subjects", methods=["GET"])
@@ -180,11 +177,11 @@ def get_all_subjects():
         return jsonify(subjects), 200
 
     except SQLAlchemyError as e:
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except JSONDecodeError as e:
-        return jsonify({"error": JSONERROR + str(e)}), 500
+        return jsonify({"error": "JSON error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 @qanda_route.route("/delete/<int:post_id>", methods=["POST"])
@@ -200,11 +197,11 @@ def delete_question(post_id):
             return jsonify({"error": "Question not found or user not authorized"}), 404
 
     except SQLAlchemyError as e:
-        return jsonify({"error": DATABASEERROR + str(e)}), 500
+        return jsonify({"error": "Database error: " + str(e)}), 500
     except JSONDecodeError as e:
-        return jsonify({"error": JSONERROR + str(e)}), 500
+        return jsonify({"error": "JSON error: " + str(e)}), 500
     except Exception as e:
-        return jsonify({"error": ANERROR + str(e)}), 500
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
 ############
