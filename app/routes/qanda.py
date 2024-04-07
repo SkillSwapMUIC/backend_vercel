@@ -151,6 +151,25 @@ def update_answer(answer_id):
         return jsonify({"error": "An error occurred: " + str(e)}), 500
 
 
+@qanda_route.route("/delete_answer/<int:answer_id>", methods=["DELETE"])
+def delete_answer(answer_id):
+    try:
+        answer = Answer.query.get(answer_id)
+        if not answer:
+            return jsonify({"error": "Answer not found"}), 404
+
+        db.session.delete(answer)
+        db.session.commit()
+
+        return jsonify({"message": "Answer deleted successfully"}), 200
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": "Database error: " + str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": "An error occurred: " + str(e)}), 500
+
+
 @qanda_route.route("all-subjects", methods=["GET"])
 def get_all_subjects():
     try:
